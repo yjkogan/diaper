@@ -15,6 +15,10 @@
 #  logo_file_size    :integer
 #  logo_updated_at   :datetime
 #  intake_location   :integer
+#  street            :string
+#  city              :string
+#  state             :string
+#  zipcode           :string
 #
 
 RSpec.describe Organization, type: :model do
@@ -27,6 +31,14 @@ RSpec.describe Organization, type: :model do
         create(:barcode_item, global: true) # global
         expect(organization.barcode_items.count).to eq(2)
       end
+    end
+  end
+
+  describe "paperclip validations" do
+    it "validates that attachments are png or jpgs" do
+      should validate_attachment_content_type(:logo)
+        .allowing('image/png', 'image/jpg')
+        .rejecting('text/plain', 'text/xml')
     end
   end
 
