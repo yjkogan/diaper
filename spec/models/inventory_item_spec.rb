@@ -2,12 +2,12 @@
 #
 # Table name: inventory_items
 #
-#  id                  :integer          not null, primary key
+#  id                  :bigint(8)        not null, primary key
+#  storage_location_id :integer
+#  item_id             :integer
 #  quantity            :integer
 #  created_at          :datetime
 #  updated_at          :datetime
-#  storage_location_id :integer
-#  item_id             :integer
 #
 
 RSpec.describe InventoryItem, type: :model do
@@ -18,7 +18,7 @@ RSpec.describe InventoryItem, type: :model do
       end
 
       it "is numerical" do
-        expect(build(:inventory_item, quantity: 'a')).not_to be_valid
+        expect(build(:inventory_item, quantity: "a")).not_to be_valid
       end
 
       it "is gte 0" do

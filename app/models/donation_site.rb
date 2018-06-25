@@ -2,7 +2,7 @@
 #
 # Table name: donation_sites
 #
-#  id              :integer          not null, primary key
+#  id              :bigint(8)        not null, primary key
 #  name            :string
 #  address         :string
 #  created_at      :datetime
@@ -11,16 +11,16 @@
 #
 
 class DonationSite < ApplicationRecord
-  require 'csv'
+  require "csv"
 
-	belongs_to :organization
-	
-	validates :name, :address, :organization, presence: true
-   
-	has_many :donations
-	
-  def self.import_csv(filename,organization)
-    CSV.parse(filename, :headers => true) do |row|
+  belongs_to :organization
+
+  validates :name, :address, :organization, presence: true
+
+  has_many :donations
+
+  def self.import_csv(filename, organization)
+    CSV.parse(filename, headers: true) do |row|
       loc = DonationSite.new(row.to_hash)
       loc.organization_id = organization
       loc.save!

@@ -1,11 +1,11 @@
 class BarcodeItemsController < ApplicationController
   def index
-    @items = current_organization.items.barcoded_items
-    @global = filter_params[:only_global]
+    @global = filter_params[:include_global] || false
+    @items = Item.gather_items(current_organization, @global)
     @barcode_items = if @global
-                       BarcodeItem.includes(:item).filter(filter_params)
+                       current_organization.barcode_items.include_global(false) + BarcodeItem.where(global: true)
                      else
-                       BarcodeItem.includes(:item).where(organization_id: current_organization.id).filter(filter_params)
+                       current_organization.barcode_items.include_global(false).filter(filter_params)
                      end
   end
 
@@ -30,16 +30,16 @@ class BarcodeItemsController < ApplicationController
   end
 
   def edit
-    @barcode_item = current_organization.barcode_items.includes(:item).find(params[:id])
+    @barcode_item = current_organization.barcode_items.includes(:barcodeable).find(params[:id])
     @items = current_organization.items
   end
 
   def show
-    @barcode_item = current_organization.barcode_items.includes(:item).find(params[:id])
+    @barcode_item = current_organization.barcode_items.includes(:barcodeable).find(params[:id])
   end
 
   def find
-    @barcode_item = current_organization.barcode_items.includes(:item).find_by!(value: barcode_item_params[:value])
+    @barcode_item = current_organization.barcode_items.includes(:barcodeable).find_by!(value: barcode_item_params[:value])
     respond_to do |format|
       format.json { render json: @barcode_item.to_json }
     end
@@ -47,8 +47,8 @@ class BarcodeItemsController < ApplicationController
 
   def update
     @barcode_item = current_organization.barcode_items.find(params[:id])
-    if @barcode_item.update_attributes(barcode_item_params)
-    redirect_to barcode_items_path, notice: "Barcode updated!"
+    if @barcode_item.update(barcode_item_params)
+      redirect_to barcode_items_path, notice: "Barcode updated!"
     else
       flash[:error] = "Something didn't work quite right -- try again?"
       render action: :edit
@@ -58,7 +58,7 @@ class BarcodeItemsController < ApplicationController
   def destroy
     begin
       # If the user is a superadmin, they can delete any Barcode
-      if (current_user.is_superadmin?)
+      if current_user.is_superadmin?
         barcode = BarcodeItem.find(params[:id])
       # Otherwise it has to be non-global in their organization
       else
@@ -72,13 +72,14 @@ class BarcodeItemsController < ApplicationController
     redirect_to barcode_items_path
   end
 
-private
+  private
+
   def barcode_item_params
-    params.require(:barcode_item).permit(:value, :item_id, :quantity, :global).merge(organization_id: current_organization.id)
+    params.require(:barcode_item).permit(:value, :barcodeable_id, :quantity, :global).merge(organization_id: current_organization.id)
   end
 
   def filter_params
-    return {} unless params.has_key?(:filters)
-    params.require(:filters).slice(:item_id, :less_than_quantity, :greater_than_quantity, :equal_to_quantity, :only_global)
+    return {} unless params.key?(:filters)
+    params.require(:filters).slice(:barcodeable_id, :less_than_quantity, :greater_than_quantity, :equal_to_quantity, :include_global, :canonical_item_id)
   end
 end

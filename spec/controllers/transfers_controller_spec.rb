@@ -41,19 +41,19 @@ RSpec.describe TransfersController, type: :controller do
     end
 
     describe "GET #show" do
-      subject { get :show, params: { organization_id: @organization.short_name, id: create(:transfer) } }
+      subject { get :show, params: { organization_id: @organization.short_name, id: create(:transfer, organization: @organization) } }
       it "returns http success" do
         expect(subject).to be_successful
       end
     end
     context "Looking at a different organization" do
-      let(:object) {
+      let(:object) do
         org = create(:organization)
         create(:transfer,
-               to_id: create(:storage_location, organization: org).id,
-               from_id: create(:storage_location, organization: org).id,
-               organization_id: org.id )
-      }
+               to: create(:storage_location, organization: org),
+               from: create(:storage_location, organization: org),
+               organization: org)
+      end
       let!(:skip) { [:edit] }
       include_examples "requiring authorization"
     end

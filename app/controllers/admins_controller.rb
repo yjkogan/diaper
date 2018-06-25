@@ -7,10 +7,10 @@ class AdminsController < ApplicationController
 
   def update
     @organization = Organization.find(params[:id])
-    if @organization.update_attributes(organization_params)
-      redirect_to admins_path, notice: 'Updated organization!'
+    if @organization.update(organization_params)
+      redirect_to admins_path, notice: "Updated organization!"
     else
-      flash[:error] = 'Failed to update this organization.'
+      flash[:error] = "Failed to update this organization."
       render :edit
     end
   end
@@ -21,7 +21,7 @@ class AdminsController < ApplicationController
 
   def invite_user
     User.invite!(email: params[:email], name: params[:name], organization_id: params[:org])
-    redirect_to admins_path, notice: 'User invited to organization!'
+    redirect_to admins_path, notice: "User invited to organization!"
   end
 
   def new
@@ -31,6 +31,7 @@ class AdminsController < ApplicationController
   def create
     @organization = Organization.create(organization_params)
     if @organization.save
+      Organization.seed_items(@organization)
       redirect_to admins_path, notice: "Organization added!"
     else
       flash[:error] = "Failed to create Organization."
