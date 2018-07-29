@@ -48,6 +48,7 @@ class Partner < ApplicationRecord
   private
 
   def update_diaper_partner
+    self.update_attributes(status: "Pending")
     DiaperPartnerClient.post "/partners", attributes
   end
 end

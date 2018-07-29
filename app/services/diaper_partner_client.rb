@@ -1,14 +1,20 @@
 module DiaperPartnerClient
   def self.post(path, attributes)
-    diaper_partner_url = ENV["DIAPER_PARTNER_URL"]
+    diaper_partner_url = "http://diaperpartner.herokuapp.com" #ENV["DIAPER_PARTNER_URL"]
     return if diaper_partner_url.blank?
 
-    uri = URI(diaper_partner_url + path)
-    request = Net::HTTP::Post.new uri
-    request.set_form_data attributes
+    partner = { partner:
+      {diaper_bank_id: attributes["organization_id"],
+      partner_id: attributes["id"],
+      email: attributes["email"]
+      }}
 
-    Net::HTTP.start(uri.hostname, uri.port) do |http|
-      http.request ApiAuth.sign!(request, "diaperbase", ENV["DIAPER_PARTNER_SECRET_KEY"])
+    uri = URI(diaper_partner_url + path)
+    req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
+    req.body = partner.to_json
+
+    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+      http.request(req)
     end
   end
 end
