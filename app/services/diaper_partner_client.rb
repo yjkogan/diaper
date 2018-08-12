@@ -1,6 +1,6 @@
 module DiaperPartnerClient
   def self.post(path, attributes)
-    diaper_partner_url = "http://diaperpartner.herokuapp.com" #ENV["DIAPER_PARTNER_URL"]
+    diaper_partner_url = "http://diapertesting.herokuapp.com" #ENV["DIAPER_PARTNER_URL"]
     return if diaper_partner_url.blank?
 
     partner = { partner:

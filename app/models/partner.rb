@@ -49,6 +49,6 @@ class Partner < ApplicationRecord
 
   def update_diaper_partner
     self.update_attributes(status: "Pending")
-    DiaperPartnerClient.post "/partners", attributes
+    DiaperPartnerClient.post "/register", attributes
   end
 end
