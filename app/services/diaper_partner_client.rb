@@ -1,6 +1,6 @@
 module DiaperPartnerClient
   def self.post(path, attributes)
-    diaper_partner_url = "https://diapertesting.herokuapp.com" #ENV["DIAPER_PARTNER_URL"]
+    diaper_partner_url = "https://diapertesting.herokuapp.com/partners"
     return if diaper_partner_url.blank?
 
     partner = { partner:
@@ -13,8 +13,15 @@ module DiaperPartnerClient
     req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
     req.body = partner.to_json
 
-    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
-      http.request(req)
+    response = https(uri).request(req)
+
+    response.body
+  end
+
+  def self.https(uri)
+    Net::HTTP.new(uri.host, uri.port).tap do |http|
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     end
   end
 end
