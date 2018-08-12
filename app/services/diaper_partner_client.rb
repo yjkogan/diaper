@@ -5,7 +5,7 @@ module DiaperPartnerClient
 
     partner = { partner:
       {diaper_bank_id: attributes["organization_id"],
-      partner_id: attributes["id"],
+      diaper_partner_id: attributes["id"],
       email: attributes["email"]
       }}
 
